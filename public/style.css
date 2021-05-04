@@ -1,0 +1,28 @@
+html{
+    background-color: blanchedalmond;
+}
+
+.Board {
+    display: grid;
+    gap: 0px;
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 10vmin;
+    grid-auto-columns: 10vmin; 
+    width: 75vmin;
+}
+
+.Bl {
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.W {
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
