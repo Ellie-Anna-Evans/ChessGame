@@ -23,48 +23,40 @@ class Board{
     //will probably just be hackish for now and just declare all the unique spaces,
     //and loop through the non-unique ones.
     setupBoard(){
-
-        this.board.push();
+        this.board.push([], [], [], [], [], [], [], []);
         
+        this.board[0].push(new Space(new Rook("black"), 'A', 1), new Space(new Knight("black"), 'A', 2), new Space(new Bishop("black"), 'A', 3), new Space(new Queen("black"), 'A', 4), new Space(new King("black"), 'A', 5), new Space(new Bishop("black"), 'A', 6), new Space(new Knight("black"), 'A', 7), new Space(new Rook("black"), 'A', 8));
+
         var i;
         for(i = 0; i < 8; i++){
-            
+            this.board[1].push(new Space(new Pawn("black"), 'B', i+1));
         }
+
+        for(i = 1; i <= 8; i++){
+            this.board[2].push(new Space("none", 'C', i+1));
+        }
+
+        for(i = 1; i <= 8; i++){
+            this.board[3].push(new Space("none", 'D', i+1));
+        }
+
+        for(i = 1; i <= 8; i++){
+            this.board[4].push(new Space("none", 'E', i+1));
+        }
+
+        for(i = 1; i <= 8; i++){
+            this.board[5].push(new Space("none", 'F', i+1));
+        }
+
+        for(i = 1; i <= 8; i++){
+            this.board[6].push(new Space(new Pawn("white"), 'G', i+1));
+        }
+
+        this.board[7].push(new Space(new Rook("white"), 'H', 1), new Space(new Knight("white"), 'H', 2), new Space(new Bishop("white"), 'H', 3), new Space(new Queen("white"), 'H', 4), new Space(new King("white"), 'H', 5), new Space(new Bishop("white"), 'H', 6), new Space(new Knight("white"), 'H', 7), new Space(new Rook("white"), 'H', 8));
     }
 
-}
-
-
-var boardVis = document.getElementsByClassName("Board").children;
-
-function boardListeners(){
-    var i;
-    for(i = 0; i < boardVis.length; i++){
-       var boardSpace = boardVis[i];
-       boardSpace.addEventListener("click", clickHandler);
-    }
-}
-
-function clickHandler(){
-    //Need to figure out how to handle this so it intercepts the second click properly.
-    //Perhaps remove all listeners and then send it to movePiece to handle specific piece movement
-    var i;
-    for(i = 0; i < boardVis.length; i++){
-        var boardSpace = boardVis[i];
-        boardSpace.removeEventListener("click", clickHandler);
-    }
+    makeEmpty(row, column){
     
-}
+    }
 
-function secondClick(){
-
-}
-
-function movePiece(row1, column1, row2, column2, type){
-    //Will move piece based on piece type and parameters. Might have this function add the listeners 
-    //back in for what spots the piece can move to.
-}
-
-function makeEmpty(row, column){
-    //This function is for when a piece is taken and removed from the board
 }

@@ -26,3 +26,6 @@ html{
     align-items: center;
 }
 
+.moving {
+    background-color: yellow;
+}
