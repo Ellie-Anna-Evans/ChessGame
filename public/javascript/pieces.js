@@ -5,6 +5,10 @@
 //
 
 class Piece{
+    type;
+    color;
+    movement;
+    mvtype;
     constructor(type, color, movement, mvtype){
         this.type = type;
         this.color = color

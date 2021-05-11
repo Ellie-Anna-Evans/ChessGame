@@ -1,4 +1,7 @@
 class Space{
+    piece;
+    row;
+    column;
     constructor(piece, row, column){
         this.piece = piece;
         this.row = row;
@@ -12,9 +15,14 @@ class Space{
     get location(){
         return (this.row, this.column);
     }
+
+    setPiece(piece){
+        this.piece = piece;
+    }
 }
 
 class Board{
+    board;
     constructor(){
         this.board = [];
     }
@@ -56,7 +64,11 @@ class Board{
     }
 
     makeEmpty(row, column){
-    
+        this.board[row][column].setPiece("none");
+    }
+
+    changePiece(row, column, piece){
+        this.board[row][column].setPiece(piece);
     }
 
 }
