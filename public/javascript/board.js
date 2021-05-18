@@ -63,6 +63,14 @@ class Board{
         this.board[7].push(new Space(new Rook("white"), 'H', 1), new Space(new Knight("white"), 'H', 2), new Space(new Bishop("white"), 'H', 3), new Space(new Queen("white"), 'H', 4), new Space(new King("white"), 'H', 5), new Space(new Bishop("white"), 'H', 6), new Space(new Knight("white"), 'H', 7), new Space(new Rook("white"), 'H', 8));
     }
 
+    get board(){
+        return this.board;
+    }
+
+    getSpace(row, column){
+        return this.board[row][column];
+    }
+
     makeEmpty(row, column){
         this.board[row][column].setPiece("none");
     }

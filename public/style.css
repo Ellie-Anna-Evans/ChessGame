@@ -2,6 +2,18 @@ html{
     background-color: blanchedalmond;
 }
 
+mark.black{
+    color: white;
+    background-color: black;
+    font-size: xx-large;
+}
+
+mark.white{
+    color: black;
+    background-color: white;
+    font-size: xx-large;
+}
+
 .Board {
     display: grid;
     gap: 0px;
@@ -13,7 +25,6 @@ html{
 
 .Bl {
     background-color: black;
-    color: white;
     display: flex;
     justify-content: center;
     align-items: center;

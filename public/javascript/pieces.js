@@ -31,36 +31,36 @@ class Piece{
 
 class Pawn extends Piece{
     constructor(color){
-        super("pawn", color, [(0,1)], "single");
+        super("pawn", color, [[1,0]], "single");
     }
 }
 
 class Rook extends Piece{
     constructor(color){
-        super("rook", color, [(0,1), (1,0), (0,-1), (-1,0)], "continuous");
+        super("rook", color, [[0,1], [1,0], [0,-1], [-1,0]], "continuous");
     }
 }
 
 class Knight extends Piece{
     constructor(color){
-        super("knight", color, [(3,1), (3,-1), (1,3), (1,-3), (-3,1), (-3,-1), (-1,3), (-1,-3)], "single");
+        super("knight", color, [[2,1], [2,-1], [1,2], [1,-2], [-2,1], [-2,-1], [-1,2], [-1,-2]], "single");
     }
 }
 
 class Bishop extends Piece{
     constructor(color){
-        super("bishop", color, [(1,1), (-1,1), (-1,-1), (1,-1)], "continuous");
+        super("bishop", color, [[1,1], [-1,1], [-1,-1], [1,-1]], "continuous");
     }
 }
 
 class Queen extends Piece{
     constructor(color){
-        super("queen", color, [(0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,1), (-1,-1), (1,-1)], "continuous");
+        super("queen", color, [[0,1], [1,0], [0,-1], [-1,0], [1,1], [-1,1], [-1,-1], [1,-1]], "continuous");
     }
 }
 
 class King extends Piece{
     constructor(color){
-        super("king", color, [(0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,1), (-1,-1), (1,-1)], "single");
+        super("king", color, [[0,1], [1,0], [0,-1], [-1,0], [1,1], [-1,1], [-1,-1], [1,-1]], "single");
     }
 }
