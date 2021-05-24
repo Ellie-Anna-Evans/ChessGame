@@ -31,7 +31,12 @@ class Piece{
 
 class Pawn extends Piece{
     constructor(color){
-        super("pawn", color, [[1,0]], "single");
+            if(color === "white"){
+                super("pawn", color, [[-1,0], [-2,0]], "single");
+            }
+            else{
+                super("pawn", color, [[1,0], [2,0]], "single");
+            }
     }
 }
 
