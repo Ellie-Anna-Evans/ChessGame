@@ -2,6 +2,18 @@ html{
     background-color: blanchedalmond;
 }
 
+#whitetaken{
+    color: black;
+    background-color: white;
+    font-size: xx-large;
+}
+
+#blacktaken{
+    color: white;
+    background-color: black;
+    font-size: xx-large;
+}
+
 mark.black{
     color: white;
     background-color: black;

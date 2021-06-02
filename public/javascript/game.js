@@ -8,28 +8,40 @@ resetButton.addEventListener("click", resetBoard);
 
 var movingpiece;
 
+var playerTurn = 0; //0 for white, 1 for black
+
+var whitetaken = []; //Holds pieces taken by white player   
+var blacktaken = []; //Holds pieces taken by black player
+
 function boardListeners(){
     var i;
     for(i = 0; i < boardVis.length; i++){
-       var boardSpace = boardVis[i];
-       boardSpace.addEventListener("click", clickHandler);
+        var boardSpace = boardVis[i];
+        if(!(boardSpace.hasChildNodes())){ //If the space is empty ignore it, saves trouble later.
+            //boardSpace.addEventListener("click", clickHandler);
+            continue;
+        }
+        else if(playerTurn == 0 && boardSpace.children[0].classList.contains("white")){ //If it is the white player's turn and the space has a white piece, add listener
+            boardSpace.addEventListener("click", clickHandler);
+        }
+        else if(playerTurn == 1 && boardSpace.children[0].classList.contains("black")){ //If it is the black player's turn and the space has a black piece, add listener
+            boardSpace.addEventListener("click", clickHandler);
+        }
     }
 }
 
 function clickHandler(event){
-    //Need to figure out how to handle this so it intercepts the second click properly.
-    //Perhaps remove all listeners and then send it to movePiece to handle specific piece movement
     var space = event.target;
     var row = String(space.classList.item(0)).charCodeAt(0) - 65;
     var column = Number(space.classList.item(1)) - 1;
-    //console.log(row, " ", column);
+    console.log(row, " ", column);
 
     var piece = board.board[row][column].piece;
     //console.log(piece);
     
-    if(piece === "none"){ //Make sure to ignore clicks on spaces that are empty.
+    /*if(piece === "none"){ //Make sure to ignore clicks on spaces that are empty.
         return;
-    }
+    }*/
     
     movingpiece = new Space(piece, row, column); //realized i need this to track the piece thats moving in the second click function
     var movement = piece.movement;
@@ -48,27 +60,46 @@ function clickHandler(event){
         if( ((movement[i][0] + row) >= 0) && ((movement[i][0] + row) < 8) && ((movement[i][1] + column) >= 0) && ((movement[i][1] + column) < 8) ){
             if(piece.mvtype === "single"){
                 if(board.board[row+movement[i][0]][column+movement[i][1]].piece.color != piece.color){
-                
-                    var mvspace = 8 * (row + movement[i][0]) + column + movement[i][1]; //This makes it easier to change if i got it wrong
-                    boardVis[mvspace].addEventListener("click", secondClick);
-                    boardVis[mvspace].classList.add("moving");
-
-                    //easier to just include all the possible moves for a pawn and break out of the movement array if its not the first move. 
+                    
+                    //Since pawns have the most irregular rules, we need to handle them specially
                     if(piece.type === "Pawn"){
+                        if(column+movement[0][1] + 1 >= 0 && column+movement[0][1] + 1 < 8 &&  board.board[row+movement[0][0]][column+movement[0][1] + 1].piece != "none" && i != 1){ //If pawn, check diagonals for opponent pieces to take.
+                            var mvspace = 8 * (row + movement[i][0]) + column + movement[i][1] + 1; //This makes it easier to change if i got it wrong
+                            boardVis[mvspace].addEventListener("click", secondClick);
+                            boardVis[mvspace].classList.add("moving");
+                        }
+                        if(column+movement[0][1] - 1 >= 0 && column+movement[0][1] - 1 < 8 && board.board[row+movement[0][0]][column+movement[0][1] - 1].piece != "none" && i != 1){ //If pawn, check diagonals for opponent pieces to take.
+                            var mvspace = 8 * (row + movement[i][0]) + column + movement[i][1] - 1; //This makes it easier to change if i got it wrong
+                            boardVis[mvspace].addEventListener("click", secondClick);
+                            boardVis[mvspace].classList.add("moving");
+                        }
+                        if(board.board[row+movement[i][0]][column+movement[i][1]].piece != "none"){ //If there is an opposing piece in front of the pawn, it cannot move forward.
+                            break;
+                        }
+                        else{
+                            var mvspace = 8 * (row + movement[i][0]) + column + movement[i][1]; //This makes it easier to change if i got it wrong
+                            boardVis[mvspace].addEventListener("click", secondClick);
+                            boardVis[mvspace].classList.add("moving");
+                        }
+
+                        //If not first move, do not add in second space to move.
                         if(piece.color === "white" && row != 6) {break;}
                         else if(piece.color === "black" && row != 1) {break;}
                     }
-
-           
+                    else{//For everything else
+                        var mvspace = 8 * (row + movement[i][0]) + column + movement[i][1]; //This makes it easier to change if i got it wrong
+                        boardVis[mvspace].addEventListener("click", secondClick);
+                        boardVis[mvspace].classList.add("moving");
+                    }
                 }
             }
             if(piece.mvtype === "continuous"){
                 var j;
                 for(j = 1; j < 8; j++){
                     //var chkspace = board.board[(row + (movement[i][0] * j))][(column + (movement[i][1] * j))]; //Again, makes it easier to fix logic errors.
-                    
-                    if( ((row + (movement[i][0] * j)) >= 0) || ((row + (movement[i][0] * j)) < 8) || ((column + (movement[i][1] * j)) >= 0) || ((column + (movement[i][1] * j)) < 8) ){
-                        //console.log(board.board[(row + (movement[i][0] * j))][(column + (movement[i][1] * j))].piece.color);
+                    //console.log(column + (movement[i][1] * j));
+                    if( ((row + (movement[i][0] * j)) >= 0) && ((row + (movement[i][0] * j)) < 8) && ((column + (movement[i][1] * j)) >= 0) && ((column + (movement[i][1] * j)) < 8) ){
+                        //console.log((row + (movement[i][0] * j)), (column + (movement[i][1] * j)));
                         if(board.board[(row + (movement[i][0] * j))][(column + (movement[i][1] * j))].piece.color != piece.color){ //Checks if this would target a friendly piece
                             //if not out of bounds, add in the space highlight and event listener
                             var mvspace = 8 * (row + (movement[i][0] * j)) + column + (movement[i][1] * j); //This makes it easier to change if i got it wrong
@@ -94,6 +125,16 @@ function clickHandler(event){
                 }
             }
         }
+    }
+
+    //checks if any moves were shown as possible. If not, re-add board listeners
+    for(i = 0; i < boardVis.length; i++){
+        if(boardVis[i].classList.contains("moving")){
+            break;
+        }
+    }
+    if(i == boardVis.length){
+        boardListeners();
     }
 
     return;
@@ -126,9 +167,10 @@ function secondClick(event){
         takePiece(movingpiece.row, movingpiece.column, row, column);
     }
 
-    for(i = 0; i < boardVis.length; i++){
-        boardVis[i].addEventListener("click", clickHandler);
-    }
+    playerTurn = 1 - playerTurn; //Flips between 0 and 1 for player turn.
+
+    boardListeners();
+
 }
 
 //1st rc pair, piece to move. 2nd rc pair, space to move
@@ -141,7 +183,16 @@ function movePiece(row1, column1, row2, column2){
 
     boardVis[8 * row2 + column2].appendChild(boardVis[8 * row1 + column1].removeChild(boardVis[8 * row1 + column1].children[0]));
 
+    if(movingpiece.piece.type === "Pawn" && (row == 0 || row == 7) && (column == 0 || column == 7)){
+        promote(row2, column2); //Send it the second pair since the piece has been moved
+    }
+
     return;
+}
+
+//Perhaps utilize a pop up for this? Or perhaps buttons that stay hidden until needed?
+function promote(row, column){
+
 }
 
 function castle(row1, column1, row2, column2){
@@ -167,15 +218,24 @@ function takePiece(row1, column1, row2, column2){
     //Will remove a piece and replace with piece that took it, and update eventual board that will have game information
 
     var piece1 = board.board[row1][column1].piece;
-    //May use this for later functionality
     var piece2 = board.board[row2][column2].piece;
 
+   
     board.changePiece(row2, column2, piece1);
 
     board.makeEmpty(row1, column1);
 
-    //may use this, I dunno yet. 
+    //Add the taken piece's visual element to the respective taken box.
     var takenpieceVis = boardVis[8 * row2 + column2].removeChild(boardVis[8 * row2 + column2].children[0]);
+
+    if(piece2.color === "black"){
+        whitetaken.push(piece2);
+        document.getElementById("whitetaken").appendChild(takenpieceVis);
+    } 
+    else if(piece2.color === "white"){
+        blacktaken.push(piece2);
+        document.getElementById("blacktaken").appendChild(takenpieceVis);
+    } 
 
     boardVis[8 * row2 + column2].appendChild(boardVis[8 * row1 + column1].removeChild(boardVis[8 * row1 + column1].children[0]));
     
@@ -190,6 +250,7 @@ function resetBoard(){
     }
 
     //Remove all child nodes of the board to have a fresh space to append clone of original board
+    //Found this code as an example on a javascripy tutorial, it used several times in this function
     while(document.getElementById("Board").firstChild){
         document.getElementById("Board").removeChild(document.getElementById("Board").firstChild);
     }
@@ -201,13 +262,27 @@ function resetBoard(){
 
     boardVis = document.getElementById("Board").children;
 
+    while(document.getElementById("whitetaken").firstChild){
+        document.getElementById("whitetaken").removeChild(document.getElementById("whitetaken").firstChild);
+    }
+    while(document.getElementById("blacktaken").firstChild){
+        document.getElementById("blacktaken").removeChild(document.getElementById("blacktaken").firstChild);
+    }
+
+    playerTurn = 0;
+
     board = new Board;
     board.setupBoard();
     boardListeners();
+
+}
+
+function checkMate(){
+
 }
 
 board.setupBoard();
 boardListeners();
 
-
-//Known bug: If no movement possible, unable to perform any other actions unless you reset
+//Need to come up with a new way to store all possible movements for each player, it will make both movement and checking for
+//checkmate much easier and nicer.
