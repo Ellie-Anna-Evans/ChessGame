@@ -6,7 +6,17 @@
         <link rel="stylesheet" href="style.css" media="screen">
     </head>
     <Body>
+        <div class="playerturntitle">Player Turn:</div>
+        <div id="playerturn">White</div>
         <button class="reset" id="reset">Reset</button>
+        <select class="promotion hidden" id="promotion">
+            <option selected disabled>Please Select a Piece</option>
+            <option value="Pawn">Pawn</option>
+            <option value="Rook">Rook</option>
+            <option value="Knight">Knight</option>
+            <option value="Bishop">Bishop</option>
+            <option value="Queen">Queen</option>
+        </select>
         <div id="blacktaken">
 
         </div>
