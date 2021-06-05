@@ -2,6 +2,10 @@ html{
     background-color: blanchedalmond;
 }
 
+.hidden{
+    display: none;
+}
+
 #whitetaken{
     color: black;
     background-color: white;
