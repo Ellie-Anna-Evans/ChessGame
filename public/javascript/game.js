@@ -457,6 +457,11 @@ function resetBoard(){
 
 }
 
+board.setupBoard();
+boardListeners();
+allMoves();
+
+
 //Even though you need to just check kings moves for check/mate, the game does not
 //need to check other pieces moves, as that is on the player to figure out
 //what will save the king. Well, actually, specifically for check mate, more needs to calculated...
@@ -529,10 +534,6 @@ function resetBoard(){
             }
         }
     }*/
-
-board.setupBoard();
-boardListeners();
-allMoves();
 
 //Need to come up with a new way to store all possible movements for each player, it will make both movement and checking for
 //checkmate much easier and nicer.
