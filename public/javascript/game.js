@@ -297,7 +297,7 @@ function secondClick(event){
         //checkMate();
     }
     else{
-        alert("Please select a piece to promote the pawn to.")
+        alert("Please select a piece to promote the pawn to.");
     }
 }
 
