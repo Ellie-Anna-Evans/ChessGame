@@ -3,24 +3,22 @@
     <head>
         <title>Chess Game</title>
         <meta charset="utf-8">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&display=swap" rel="stylesheet">    
         <link rel="stylesheet" href="style.css" media="screen">
     </head>
     <Body>
-        <div class="playerturntitle">Player Turn:</div>
-        <div id="playerturn">White</div>
-        <button class="reset" id="reset">Reset</button>
-        <select class="promotion hidden" id="promotion">
-            <option selected disabled>Please Select a Piece</option>
-            <option value="Rook">Rook</option>
-            <option value="Knight">Knight</option>
-            <option value="Bishop">Bishop</option>
-            <option value="Queen">Queen</option>
-        </select>
-        <div id="blacktaken">
-
-        </div>
-        <div id="whitetaken">
-
+        <div class="sidebar">
+            <div class="playerturn">Player Turn:</div>
+            <div class="playerturn" id="playerturn">White</div>
+            <button class="reset" id="reset">Reset</button>
+            <select class="promotion hidden" id="promotion">
+                <option selected disabled>Please Select a Piece</option>
+                <option value="Rook">Rook</option>
+                <option value="Knight">Knight</option>
+                <option value="Bishop">Bishop</option>
+                <option value="Queen">Queen</option>
+            </select>
         </div>
         <div class ="Board" id="Board">
             
@@ -42,6 +40,14 @@
         
         </div>
     </Body>
+    <footer>
+        <div id="blacktaken">
+
+        </div>
+        <div id="whitetaken">
+
+        </div>
+    </footer>
 </html>
 
 <script src ="javascript/pieces.js"></script>

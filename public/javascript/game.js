@@ -22,8 +22,12 @@ var promoteRC;
 var blackking;
 var whiteking;
 
-var whitetaken = []; //Holds pieces taken by white player   
+//Track the pieces that target the king for use in check/mate checking
+var blackCheck = [];
+var whiteCheck = [];
+
 var blacktaken = []; //Holds pieces taken by black player
+var whitetaken = []; //Holds pieces taken by white player   
 
 function boardListeners(){
     var i;
@@ -43,10 +47,13 @@ function boardListeners(){
 
 //Since I already have a method to check for movement on all piece types, I should just be able to 
 //reuse that method and just check for every piece every turn, and then just look up the potential movement
-//in the resulting arrays. It will result in a 4D array, but the structure is pretty straight forward.
-//It goes rows->columns->piece->movement x,y
+//in the resulting arrays. It will result in a 5D array, but the structure is pretty straight forward.
+//It goes rows->columns-> (for some reason I ended up with an extra mediating layer here) -> movement x -> movement y
 //The array must include a data structure similar to the board so as to be able to look up the piece by board space
 function allMoves(){
+
+    blackCheck = [];
+    whiteCheck = [];
 
     possibleMoves = [];
 
@@ -60,11 +67,13 @@ function allMoves(){
             }
             else{
                 var piece = board.board[row][column].piece;
+
                 //Track the kings for later use in check/mate
                 if(piece.type === "King"){
-                    if(piece.color === "black"){ blackking = [row, column];}
-                    else{ whiteking = [row, column];}
+                    if(piece.color === "black"){ blackking = [piece, row, column];}
+                    else{ whiteking = [piece, row, column];}
                 }
+
                 var movement = piece.movement;
                 //This is basically the same logic as the original click handler, but utilizes a nested loop to 
                 //perform the check for every piece on the board.
@@ -81,7 +90,17 @@ function allMoves(){
                                         column+movement[0][1] + 1 < 8 && 
                                         board.board[row+movement[0][0]][column+movement[0][1] + 1].piece != "none" && 
                                         board.board[row+movement[0][0]][column+movement[0][1] + 1].piece.color != piece.color)
-                                        { //If pawn, check diagonals for opponent pieces to take.
+                                        {
+                                        //If pawn, check diagonals for opponent pieces to take.
+                                        //If this targets the king, log it for later use in checking for check/mate
+                                        if(board.board[row+movement[0][0]][column+movement[0][1] + 1].piece.type === "King"){
+                                            if(board.board[row+movement[0][0]][column+movement[0][1] + 1].piece.color === "white"){
+                                                whiteCheck.push([piece, row+movement[0][0], column+movement[0][1] + 1]);
+                                            }
+                                            else{
+                                                blackCheck.push([piece, row+movement[0][0], column+movement[0][1] + 1]);
+                                            }
+                                        }
                                         possibleMoves[row][column][possibleMoves[row][column].length-1].push([row+movement[i][0], column+movement[i][1] + 1]);
                                     }
                                     if(i != 1 && 
@@ -89,7 +108,17 @@ function allMoves(){
                                         column+movement[0][1] - 1 < 8 && 
                                         board.board[row+movement[0][0]][column+movement[0][1] - 1].piece != "none" && 
                                         board.board[row+movement[0][0]][column+movement[0][1] - 1].piece.color != piece.color)
-                                        { //If pawn, check diagonals for opponent pieces to take.
+                                        {
+                                        //If pawn, check diagonals for opponent pieces to take.
+                                        //If this targets the king, log it for later use in checking for check/mate
+                                        if(board.board[row+movement[0][0]][column+movement[0][1] - 1].piece.type === "King"){
+                                            if(board.board[row+movement[0][0]][column+movement[0][1] - 1].piece.color === "white"){
+                                                whiteCheck.push([piece, row, column]);
+                                            }
+                                            else{
+                                                blackCheck.push([piece, row, column]);
+                                            }
+                                        }
                                         possibleMoves[row][column][possibleMoves[row][column].length-1].push([row+movement[i][0], column+movement[i][1] - 1]);
                                     }
                                     if(board.board[row+movement[i][0]][column+movement[i][1]].piece != "none"){ //If there is an opposing piece in front of the pawn, it cannot move forward.
@@ -97,6 +126,14 @@ function allMoves(){
                                         break;
                                     }
                                     else{
+                                        if(board.board[row+movement[0][0]][column+movement[0][1]].piece.type === "King"){
+                                            if(board.board[row+movement[0][0]][column+movement[0][1]].piece.color === "white"){
+                                                whiteCheck.push([piece, row, column]);
+                                            }
+                                            else{
+                                                blackCheck.push([piece, row, column]);
+                                            }
+                                        }
                                         possibleMoves[row][column][possibleMoves[row][column].length-1].push([row+movement[i][0], column+movement[i][1]]);
                                     }
             
@@ -119,6 +156,14 @@ function allMoves(){
                                     {
                                     if(board.board[(row + (movement[i][0] * j))][(column + (movement[i][1] * j))].piece.color != piece.color){ //Checks if this would target a friendly piece
                                         //if not out of bounds, add in the space highlight and event listener
+                                        if(board.board[row+(movement[i][0] * j)][column+(movement[i][1] * j)].piece.type === "King"){
+                                            if(board.board[row+(movement[i][0] * j)][column+(movement[i][1] * j)].piece.color === "white"){
+                                                whiteCheck.push([piece, row, column]);
+                                            }
+                                            else{
+                                                blackCheck.push([piece, row, column]);
+                                            }
+                                        }
                                         possibleMoves[row][column].push([]);
                                         possibleMoves[row][column][possibleMoves[row][column].length-1].push([row+(movement[i][0] * j), column+(movement[i][1] * j)]);
                                         if(board.board[(row + (movement[i][0] * j))][(column + (movement[i][1] * j))].piece != "none"){ //If there is a piece in this space, it is takeable and still needs a space highlight, but that does end the loop.
@@ -149,16 +194,19 @@ function allMoves(){
 }
 
 function clickHandler(event){
+    event.stopPropagation();
     var space = event.target;
     var row = String(space.classList.item(0)).charCodeAt(0) - 65;
     var column = Number(space.classList.item(1)) - 1;
 
-    try{ 
+    var piece = board.board[row][column].piece;
+
+    /*try{ 
         var piece = board.board[row][column].piece;
     }
     catch(e){
         return;
-    }
+    }*/
     
     movingpiece = new Space(piece, row, column); //realized i need this to track the piece thats moving in the second click function
 
@@ -223,7 +271,10 @@ function secondClick(event){
         castle(movingpiece.row, movingpiece.column, row, column);
     }
     else{
-        takePiece(movingpiece.row, movingpiece.column, row, column);
+        //takePiece will return 1 if the king was taken, to signal the end of the game.
+        if(takePiece(movingpiece.row, movingpiece.column, row, column)){
+            return;
+        }
     }
 
     if(movingpiece.piece.type === "Pawn" && (row == 0 || row == 7)){
@@ -241,7 +292,9 @@ function secondClick(event){
     if(!waitForPromote){
         boardListeners();
         allMoves();
-        checkCheck();
+        if(playerTurn == 0 && whiteCheck.length){ alert("You are in check!");}
+        else if(playerTurn == 1 && blackCheck.length){ alert("You are in check!");}
+        //checkMate();
     }
     else{
         alert("Please select a piece to promote the pawn to.")
@@ -310,7 +363,9 @@ function promoteListen(){
 
     boardListeners();
     allMoves();
-    checkCheck();
+    //If there are any elements in the check arrays, then the player is in check.
+    if(playerTurn == 0 && whiteCheck.length){ alert("You are in check!");}
+    else if(playerTurn == 1 && blackCheck.length){ alert("You are in check!");}
 }
 
 function castle(row1, column1, row2, column2){
@@ -354,7 +409,13 @@ function takePiece(row1, column1, row2, column2){
     } 
 
     boardVis[8 * row2 + column2].appendChild(boardVis[8 * row1 + column1].removeChild(boardVis[8 * row1 + column1].children[0]));
-    
+
+    if(piece2.type === "King"){
+        if(playerTurn){ alert("Black Player Wins!");}
+        else{ alert("White Player Wins!");}
+        return 1;
+    }
+    return 0;
 }
 
 function resetBoard(){
@@ -392,6 +453,7 @@ function resetBoard(){
     board = new Board;
     board.setupBoard();
     boardListeners();
+    allMoves();
 
 }
 
@@ -405,10 +467,18 @@ function resetBoard(){
 //it easier to check for true checkmate, specifically in the scenario where another piece could remove the offending piece, even in the scenario where the king has no 
 //moves to make that wouldn't take it out of check.
 
-function checkCheck(){
 
+//Unfortunately due to time constraints, I am unable to finish a robust checkmate check system. As I am on the day the final pieces are due, and I have a midterm to take today as well, I will have to 
+//forego it. Check is working however, so the player has at least some ability to work through the rest themselves. 
+
+
+//Will return 1 or 0 depending on if in checkmate
+/*function checkMate(){
+
+
+}*/
     //Go through the whole array of possible moves, and check if the king is in a spot that an opponent piece can move and take.
-    var row, column, move;
+    /*var row, column, move;
     for(row = 0; row < 8; row++){
         for(column = 0; column < 8; column++){
             if(possibleMoves[row][column].length != 0){
@@ -458,8 +528,7 @@ function checkCheck(){
                 }
             }
         }
-    }
-}
+    }*/
 
 board.setupBoard();
 boardListeners();
