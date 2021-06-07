@@ -1,6 +1,6 @@
 //Next task is to implement check/mate including all visuals for that. 
 //Thinking about utilizing alerts to let the player know they are in check
-
+ 
 var board = new Board;
 
 var baseBoard = document.getElementById("Board").cloneNode(true);
@@ -17,6 +17,10 @@ var playerTurn = 0; //0 for white, 1 for black
 
 var waitForPromote = 0;
 var promoteRC;
+
+//Track the kings publicly to make using them in checking for check/mate easier later
+var blackking;
+var whiteking;
 
 var whitetaken = []; //Holds pieces taken by white player   
 var blacktaken = []; //Holds pieces taken by black player
@@ -52,10 +56,15 @@ function allMoves(){
         for(column = 0; column < 8; column++){
             possibleMoves[row].push([]);
             if(board.board[row][column].piece === "none"){
-                possibleMoves[row][column].push([]);
+                continue;
             }
             else{
                 var piece = board.board[row][column].piece;
+                //Track the kings for later use in check/mate
+                if(piece.type === "King"){
+                    if(piece.color === "black"){ blackking = [row, column];}
+                    else{ whiteking = [row, column];}
+                }
                 var movement = piece.movement;
                 //This is basically the same logic as the original click handler, but utilizes a nested loop to 
                 //perform the check for every piece on the board.
@@ -84,6 +93,7 @@ function allMoves(){
                                         possibleMoves[row][column][possibleMoves[row][column].length-1].push([row+movement[i][0], column+movement[i][1] - 1]);
                                     }
                                     if(board.board[row+movement[i][0]][column+movement[i][1]].piece != "none"){ //If there is an opposing piece in front of the pawn, it cannot move forward.
+                                        if(i == 1){possibleMoves[row][column].pop(); }//Pop the last movement array element in this scenario, as it causes a problem later because it adds a phantom array element (since in this if statement, we have decided there is a piece in a spot where the pawn would've normally been able to move).
                                         break;
                                     }
                                     else{
@@ -182,6 +192,7 @@ function samePieceClick(){
     for(i = 0; i < boardVis.length; i++){
         boardVis[i].removeEventListener("click", secondClick, true);
         boardVis[i].classList.remove("moving");
+        boardVis[i].removeEventListener("click", samePieceClick, true);
     }
 
     boardListeners();
@@ -202,6 +213,7 @@ function secondClick(event){
     for(i = 0; i < boardVis.length; i++){
         boardVis[i].removeEventListener("click", secondClick, true);
         boardVis[i].classList.remove("moving");
+        boardVis[i].removeEventListener("click", samePieceClick, true);
     }
 
     if(piece === "none"){
@@ -229,6 +241,7 @@ function secondClick(event){
     if(!waitForPromote){
         boardListeners();
         allMoves();
+        checkCheck();
     }
     else{
         alert("Please select a piece to promote the pawn to.")
@@ -297,6 +310,7 @@ function promoteListen(){
 
     boardListeners();
     allMoves();
+    checkCheck();
 }
 
 function castle(row1, column1, row2, column2){
@@ -381,8 +395,70 @@ function resetBoard(){
 
 }
 
-function checkMate(){
+//Even though you need to just check kings moves for check/mate, the game does not
+//need to check other pieces moves, as that is on the player to figure out
+//what will save the king. Well, actually, specifically for check mate, more needs to calculated...
+//For check mate, you need to check the moves of the other pieces still on the board for the player who's in check mate
+//. If another piece can remove the immediate threat, then its not check mate, even if all the king's moves result in a death
 
+//Could potentially track the number of pieces and the pieces that can target each king to potentially nullify needing to do this whole function, plus that would make 
+//it easier to check for true checkmate, specifically in the scenario where another piece could remove the offending piece, even in the scenario where the king has no 
+//moves to make that wouldn't take it out of check.
+
+function checkCheck(){
+
+    //Go through the whole array of possible moves, and check if the king is in a spot that an opponent piece can move and take.
+    var row, column, move;
+    for(row = 0; row < 8; row++){
+        for(column = 0; column < 8; column++){
+            if(possibleMoves[row][column].length != 0){
+                for(move = 0; move < possibleMoves[row][column].length; move++){    
+                    if(possibleMoves[row][column][0].length != 0){
+                        if(playerTurn == 0){
+                            try{ //Was getting some errors here, catching them for debugging
+                                if(board.board[row][column].piece.color === "black"){
+                                    if(possibleMoves[row][column][move][0][0] == whiteking[0] &&
+                                    possibleMoves[row][column][move][0][1] == whiteking[1])
+                                    {
+                                    alert("You are in check");
+                                    }
+                                }
+                                else{
+                                    break;
+                                }
+                            }
+                            catch(e){
+                                console.log(board.board[row][column]);
+                                console.log(possibleMoves[row][column].length, possibleMoves[row][column][move]);
+                                console.log(e);
+                                return;
+                            }
+                        }
+                        else if(playerTurn == 1){
+                            try{ //Was getting some errors here, catching them for debugging
+                                if(board.board[row][column].piece.color === "white"){
+                                    if(possibleMoves[row][column][move][0][0] == blackking[0] &&
+                                    possibleMoves[row][column][move][0][1] == blackking[1])
+                                    {
+                                    alert("You are in check");
+                                    }
+                                }
+                                else{
+                                    break;
+                                }
+                            }
+                            catch(e){
+                                console.log(board.board[row][column]);
+                                console.log(possibleMoves[row][column].length, possibleMoves[row][column][move]);
+                                console.log(e);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 board.setupBoard();
